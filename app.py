@@ -23,7 +23,7 @@ from pipeline import NetSagePipeline
 from utils import load_cases, validate_dataset
 
 # ==========================================
-# Page Configuration & Styling
+# Page Configuration & Clean CSS Styling
 # ==========================================
 st.set_page_config(
     page_title="NetSage AI - Cisco Troubleshooting Helper",
@@ -32,9 +32,24 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Sleek NOC / Dark Terminal Theme
+# Custom CSS: Hide headers/footers, professional NOC blue buttons, dark cards & clean code blocks
 st.markdown("""
 <style>
+    /* 1. Hide default Streamlit top headers and menu elements */
+    #MainMenu {visibility: hidden; display: none !important;}
+    header {visibility: hidden; display: none !important;}
+    footer {visibility: hidden; display: none !important;}
+    header[data-testid="stHeader"] {display: none !important;}
+    .stDeployButton {display: none !important;}
+    [data-testid="stToolbar"] {visibility: hidden !important;}
+
+    /* Top padding adjustment */
+    .block-container {
+        padding-top: 1.8rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    /* 2. Professional NOC Metric Cards */
     .metric-card {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         border: 1px solid #334155;
@@ -56,8 +71,50 @@ st.markdown("""
         font-weight: 700;
         margin-top: 4px;
     }
+
+    /* 3. Professional Corporate Blue Buttons (Replaces bright coral) */
+    .stButton > button, 
+    .stButton > button[kind="primary"], 
+    .stButton > button[kind="secondary"] {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        color: #ffffff !important;
+        border: 1px solid #3b82f6 !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        padding: 0.6rem 1.4rem !important;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .stButton > button:hover, 
+    .stButton > button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+        border-color: #60a5fa !important;
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+        transform: translateY(-1px) !important;
+    }
+    .stButton > button:active {
+        transform: translateY(0px) !important;
+    }
+
+    /* Download button styling */
+    .stDownloadButton > button {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+        color: #ffffff !important;
+        border: 1px solid #38bdf8 !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+    }
+
+    /* 4. Sleek Terminal Code Block Styling */
     .stCodeBlock {
         border-radius: 8px !important;
+        border: 1px solid #334155 !important;
+    }
+    pre {
+        background-color: #0f172a !important;
+        color: #38bdf8 !important;
+        font-family: 'Consolas', 'Courier New', monospace !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -122,11 +179,26 @@ eval_summary = get_evaluation_data()
 records = eval_summary.get("records", [])
 
 # ==========================================
-# Sidebar Context
+# Sidebar with Clean Embedded SVG Badge
 # ==========================================
-st.sidebar.image("https://img.icons8.com/fluency/96/network-switch.png", width=64)
-st.sidebar.title("NetSage AI")
-st.sidebar.caption("Cisco Packet Tracer Troubleshooting Assistant")
+st.sidebar.markdown("""
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+    <div style="background: linear-gradient(135deg, #1d4ed8, #0284c7); border-radius: 10px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.4);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            <line x1="18" y1="6" x2="18.01" y2="6"></line>
+            <line x1="18" y1="18" x2="18.01" y2="18"></line>
+        </svg>
+    </div>
+    <div>
+        <div style="font-size: 1.35rem; font-weight: 800; color: #f8fafc; letter-spacing: -0.5px;">NetSage AI</div>
+        <div style="font-size: 0.76rem; color: #38bdf8; font-weight: 500;">Cisco Network Troubleshooter</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # Optional Gemini API Key config
 api_key = st.sidebar.text_input("Gemini API Key (Optional):", type="password", placeholder="Enter API Key for live LLM")
@@ -184,9 +256,15 @@ with tab_troubleshoot:
         }
 
     c_left, c_mid, c_right = st.columns(3)
-    c_left.info(f"**Symptom:**\n{sym_input}")
-    c_mid.info(f"**Topology:**\n{topo_input}")
-    c_right.info(f"**Show Output:**\n`{show_input}`")
+    with c_left:
+        st.markdown("**📌 Host Symptom:**")
+        st.info(sym_input)
+    with c_mid:
+        st.markdown("**🌐 Topology Context:**")
+        st.info(topo_input)
+    with c_right:
+        st.markdown("**💻 Cisco IOS Show Output:**")
+        st.code(show_input, language="text")
 
     if st.button("🚀 Run NetSage AI Diagnostic", type="primary", use_container_width=True):
         checker = RuleChecker()
@@ -210,7 +288,8 @@ with tab_troubleshoot:
             st.markdown(f"**OSI Layer:** `{rule_res['osi_layer']}`")
             st.markdown(f"**Confidence:** `{rule_res['confidence'] * 100:.1f}%`")
             st.markdown(f"**Evidence:** *\"{rule_res['evidence']}\"*")
-            st.markdown(f"**Verification Command:** `{rule_res['next_command']}`")
+            st.markdown("**Verification Command:**")
+            st.code(rule_res['next_command'], language="text")
 
         with res_c2:
             st.markdown("#### 🤖 2. NetSage AI Diagnostic Synthesis")
@@ -248,9 +327,10 @@ with tab_review:
     rev_col1, rev_col2 = st.columns(2)
     with rev_col1:
         st.markdown("#### 🤖 AI Proposed Diagnosis")
-        st.markdown(f"**Case ID:** `{rev_case['case_id']}`")
+        st.markdown(f"**Case ID:** `{rev_case['case_id']}` | **Domain:** `{rev_case.get('concept', '')}`")
         st.markdown(f"**Symptom:** {rev_case['symptom']}")
-        st.markdown(f"**Show Output:** `{rev_case['show_output']}`")
+        st.markdown("**💻 Cisco Show Output:**")
+        st.code(rev_case['show_output'], language="text")
         st.markdown(f"**AI Root Cause:** {rev_ai['root_cause']}")
         st.markdown(f"**OSI Layer:** `{rev_ai['osi_layer']}` | **Confidence:** `{rev_ai['confidence']*100:.1f}%`")
         st.markdown("**AI Fix Commands:**")
