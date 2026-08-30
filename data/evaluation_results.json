@@ -1,0 +1,1250 @@
+{
+  "total_cases": 30,
+  "rule_engine_matches": 30,
+  "rule_engine_match_rate_pct": 100.0,
+  "human_agreed_count": 25,
+  "human_agreement_rate_pct": 83.33,
+  "human_corrected_count": 5,
+  "average_confidence": 0.958,
+  "records": [
+    {
+      "case_id": "C001",
+      "issue_type": "VLAN",
+      "concept": "VLAN",
+      "severity": "Medium",
+      "osi_layer": "Layer 2",
+      "symptom": "PC in VLAN 10 gets IP but cannot reach another VLAN",
+      "show_output": "interface Gi0/1 trunk allowed VLANs 20,30",
+      "topology_note": "SW1 show vlan brief shows VLAN 10; trunk output does not list VLAN 10",
+      "expected_fault": "VLAN 10 missing from trunk allowed list",
+      "rule_matched": true,
+      "rule_name": "TRUNK_ALLOWED_VLAN_MISSING",
+      "ai_diagnosis": {
+        "root_cause": "VLAN 10 is missing from the 802.1Q trunk allowed VLAN list on the uplink.",
+        "confidence": 0.96,
+        "evidence": "show interfaces trunk shows allowed list does not include VLAN 10.",
+        "next_command": "show interfaces trunk",
+        "fix_steps": [
+          "Access switch trunk interface configuration mode.",
+          "Append the missing VLAN to trunk allowed list: switchport trunk allowed vlan add 10",
+          "Verify with: show interfaces trunk"
+        ],
+        "human_review_recommended": false
+      },
+      "human_review": {
+        "case_id": "C001",
+        "ai_root_cause": "VLAN 10 is missing from the 802.1Q trunk allowed VLAN list on the uplink.",
+        "ai_confidence": 0.96,
+        "ai_osi_layer": "Layer 2/Data Link",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "VLAN 10 is missing from the 802.1Q trunk allowed VLAN list on the uplink.",
+        "corrected_fix_steps": [
+          "Access switch trunk interface configuration mode.",
+          "Append the missing VLAN to trunk allowed list: switchport trunk allowed vlan add 10",
+          "Verify with: show interfaces trunk"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C002",
+      "issue_type": "VLAN",
+      "concept": "VLAN",
+      "severity": "High",
+      "osi_layer": "Layer 2",
+      "symptom": "PCs in same VLAN cannot communicate",
+      "show_output": "Gi0/2 access vlan 30; expected VLAN 20",
+      "topology_note": "show vlan brief places PC ports in VLAN 20 and 30 unexpectedly",
+      "expected_fault": "Access port assigned to wrong VLAN",
+      "rule_matched": true,
+      "rule_name": "ACCESS_PORT_VLAN_MISMATCH",
+      "ai_diagnosis": {
+        "root_cause": "Host access port is assigned to the incorrect VLAN in the switchport configuration.",
+        "confidence": 0.94,
+        "evidence": "show vlan brief displays port membership in wrong VLAN ID.",
+        "next_command": "show vlan brief",
+        "fix_steps": [
+          "Enter access interface configuration mode: interface <id>",
+          "Reassign to the designated VLAN: switchport access vlan <correct_vlan_id>",
+          "Ensure port mode is static access: switchport mode access",
+          "Verify with: show vlan brief"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C002",
+        "ai_root_cause": "Host access port is assigned to the incorrect VLAN in the switchport configuration.",
+        "ai_confidence": 0.94,
+        "ai_osi_layer": "Layer 2/Data Link",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Host access port is assigned to the incorrect VLAN in the switchport configuration.",
+        "corrected_fix_steps": [
+          "Enter access interface configuration mode: interface <id>",
+          "Reassign to the designated VLAN: switchport access vlan <correct_vlan_id>",
+          "Ensure port mode is static access: switchport mode access",
+          "Verify with: show vlan brief"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C003",
+      "issue_type": "Gateway",
+      "concept": "Gateway",
+      "severity": "High",
+      "osi_layer": "Layer 3",
+      "symptom": "PC can reach local VLAN but not remote networks",
+      "show_output": "Gateway is outside PC subnet",
+      "topology_note": "PC ipconfig: 192.168.10.25/24, gateway 192.168.20.1",
+      "expected_fault": "Incorrect default gateway",
+      "rule_matched": true,
+      "rule_name": "GATEWAY_OUTSIDE_SUBNET",
+      "ai_diagnosis": {
+        "root_cause": "Configured default gateway IP is not in the same local subnet as host IP address.",
+        "confidence": 0.97,
+        "evidence": "Host IP subnet and default gateway IP belong to different IP broadcast domains/subnets.",
+        "next_command": "ipconfig /all (PC) or show ip interface brief (Router/SVI)",
+        "fix_steps": [
+          "Correct host default gateway IP to match local router interface / SVI address (e.g. 192.168.10.1).",
+          "Or update the default-router parameter in the corresponding DHCP pool.",
+          "Verify connectivity using ping <default_gateway_ip>."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C003",
+        "ai_root_cause": "Configured default gateway IP is not in the same local subnet as host IP address.",
+        "ai_confidence": 0.97,
+        "ai_osi_layer": "Layer 3/Network",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Configured default gateway IP is not in the same local subnet as host IP address.",
+        "corrected_fix_steps": [
+          "Correct host default gateway IP to match local router interface / SVI address (e.g. 192.168.10.1).",
+          "Or update the default-router parameter in the corresponding DHCP pool.",
+          "Verify connectivity using ping <default_gateway_ip>."
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C004",
+      "issue_type": "Gateway",
+      "concept": "Gateway",
+      "severity": "High",
+      "osi_layer": "Layer 1/3",
+      "symptom": "PC has IP but cannot ping its gateway",
+      "show_output": "show interfaces Gi0/1 = administratively down",
+      "topology_note": "PC: 192.168.10.50/24; gateway 192.168.10.1",
+      "expected_fault": "Gateway interface is shut down",
+      "rule_matched": true,
+      "rule_name": "INTERFACE_ADMIN_DOWN",
+      "ai_diagnosis": {
+        "root_cause": "Interface Gi0/1 is administratively shut down.",
+        "confidence": 0.98,
+        "evidence": "Output indicates 'Gi0/1 is administratively down'",
+        "next_command": "show interfaces Gi0/1 status",
+        "fix_steps": [
+          "Enter privileged EXEC mode: enable",
+          "Enter global configuration mode: configure terminal",
+          "Enter interface sub-configuration mode: interface Gi0/1",
+          "Enable the port: no shutdown",
+          "Verify interface state: show ip interface brief"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C004",
+        "ai_root_cause": "Interface Gi0/1 is administratively shut down.",
+        "ai_confidence": 0.98,
+        "ai_osi_layer": "Layer 1/Physical",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Interface Gi0/1 is administratively shut down.",
+        "corrected_fix_steps": [
+          "Enter privileged EXEC mode: enable",
+          "Enter global configuration mode: configure terminal",
+          "Enter interface sub-configuration mode: interface Gi0/1",
+          "Enable the port: no shutdown",
+          "Verify interface state: show ip interface brief"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C005",
+      "issue_type": "DHCP",
+      "concept": "DHCP",
+      "severity": "High",
+      "osi_layer": "Layer 7",
+      "symptom": "PC receives 169.254.x.x address",
+      "show_output": "Pool maximum address is exhausted",
+      "topology_note": "show ip dhcp pool USERS shows no free addresses",
+      "expected_fault": "DHCP pool exhausted",
+      "rule_matched": true,
+      "rule_name": "DHCP_POOL_EXHAUSTED",
+      "ai_diagnosis": {
+        "root_cause": "DHCP pool addresses are fully allocated, forcing clients to fallback to APIPA (169.254.x.x).",
+        "confidence": 0.97,
+        "evidence": "show ip dhcp pool shows 0 free leases; host has APIPA 169.254.x.x address.",
+        "next_command": "show ip dhcp pool | show ip dhcp binding",
+        "fix_steps": [
+          "Clear expired or stale leases: clear ip dhcp binding *",
+          "Expand DHCP network pool subnet mask if capacity is insufficient.",
+          "Shorten DHCP lease time if client churn is high."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C005",
+        "ai_root_cause": "DHCP pool addresses are fully allocated, forcing clients to fallback to APIPA (169.254.x.x).",
+        "ai_confidence": 0.97,
+        "ai_osi_layer": "Layer 7/Application",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "DHCP pool addresses are fully allocated, forcing clients to fallback to APIPA (169.254.x.x).",
+        "corrected_fix_steps": [
+          "Clear expired or stale leases: clear ip dhcp binding *",
+          "Expand DHCP network pool subnet mask if capacity is insufficient.",
+          "Shorten DHCP lease time if client churn is high."
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C006",
+      "issue_type": "DHCP",
+      "concept": "DHCP",
+      "severity": "High",
+      "osi_layer": "Layer 7",
+      "symptom": "PC receives IP but wrong subnet",
+      "show_output": "Pool network is 192.168.20.0/24",
+      "topology_note": "show ip dhcp binding shows 192.168.20.x for VLAN 10 clients",
+      "expected_fault": "DHCP pool has wrong network",
+      "rule_matched": true,
+      "rule_name": "DHCP_WRONG_POOL_NETWORK",
+      "ai_diagnosis": {
+        "root_cause": "DHCP pool is configured with a network statement that does not match the local subnet / VLAN.",
+        "confidence": 0.95,
+        "evidence": "show ip dhcp binding shows leased IP range conflicting with target VLAN subnet.",
+        "next_command": "show running-config | section dhcp",
+        "fix_steps": [
+          "Enter DHCP pool configuration: ip dhcp pool <pool_name>",
+          "Correct the network subnet: network <correct_subnet> <subnet_mask>",
+          "Update default router option: default-router <gateway_ip>",
+          "Renew client IP: ipconfig /release followed by ipconfig /renew"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C006",
+        "ai_root_cause": "DHCP pool is configured with a network statement that does not match the local subnet / VLAN.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 7/Application",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "DHCP pool is configured with a network statement that does not match the local subnet / VLAN.",
+        "corrected_fix_steps": [
+          "Enter DHCP pool configuration: ip dhcp pool <pool_name>",
+          "Correct the network subnet: network <correct_subnet> <subnet_mask>",
+          "Update default router option: default-router <gateway_ip>",
+          "Renew client IP: ipconfig /release followed by ipconfig /renew"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C007",
+      "issue_type": "DHCP",
+      "concept": "DHCP",
+      "severity": "High",
+      "osi_layer": "Layer 3/7",
+      "symptom": "DHCP clients in another VLAN get no address",
+      "show_output": "No ip helper-address configured",
+      "topology_note": "show run interface vlan 30 has no helper-address",
+      "expected_fault": "Missing DHCP relay",
+      "rule_matched": true,
+      "rule_name": "DHCP_RELAY_HELPER_MISSING",
+      "ai_diagnosis": {
+        "root_cause": "DHCP broadcast discovery packets across VLANs are dropped because 'ip helper-address' is not configured on the SVI/gateway interface.",
+        "confidence": 0.98,
+        "evidence": "Router/L3 switch interface configuration lacks 'ip helper-address' for centralized DHCP server.",
+        "next_command": "show run interface <vlan_interface>",
+        "fix_steps": [
+          "Enter client VLAN gateway interface configuration: interface Vlan<id> (or sub-interface).",
+          "Configure DHCP relay destination: ip helper-address <dhcp_server_ip>",
+          "Verify client obtains IP address via DHCP: ipconfig /renew"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C007",
+        "ai_root_cause": "DHCP broadcast discovery packets across VLANs are dropped because 'ip helper-address' is not configured on the SVI/gateway interface.",
+        "ai_confidence": 0.98,
+        "ai_osi_layer": "Layer 3/7",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "DHCP broadcast discovery packets across VLANs are dropped because 'ip helper-address' is not configured on the SVI/gateway interface.",
+        "corrected_fix_steps": [
+          "Enter client VLAN gateway interface configuration: interface Vlan<id> (or sub-interface).",
+          "Configure DHCP relay destination: ip helper-address <dhcp_server_ip>",
+          "Verify client obtains IP address via DHCP: ipconfig /renew"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C008",
+      "issue_type": "DNS",
+      "concept": "DNS",
+      "severity": "Medium",
+      "osi_layer": "Layer 7",
+      "symptom": "PC can ping 8.8.8.8 but cannot open example.com",
+      "show_output": "ipconfig shows DNS server 0.0.0.0",
+      "topology_note": "nslookup example.com times out",
+      "expected_fault": "DNS server configuration missing",
+      "rule_matched": true,
+      "rule_name": "DNS_SERVER_UNCONFIGURED",
+      "ai_diagnosis": {
+        "root_cause": "DNS resolver IP is unassigned or configured as 0.0.0.0 on client/DHCP pool.",
+        "confidence": 0.96,
+        "evidence": "ipconfig shows DNS server 0.0.0.0; nslookup fails while raw IP ping succeeds.",
+        "next_command": "ipconfig /all (PC) or show ip dhcp pool",
+        "fix_steps": [
+          "Configure DNS server parameter inside DHCP pool: dns-server <dns_server_ip>",
+          "Or configure static DNS address in client network adapter settings.",
+          "Flush client DNS cache and test: ipconfig /flushdns"
+        ],
+        "human_review_recommended": false
+      },
+      "human_review": {
+        "case_id": "C008",
+        "ai_root_cause": "DNS resolver IP is unassigned or configured as 0.0.0.0 on client/DHCP pool.",
+        "ai_confidence": 0.96,
+        "ai_osi_layer": "Layer 7/Application",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "DNS resolver IP is unassigned or configured as 0.0.0.0 on client/DHCP pool.",
+        "corrected_fix_steps": [
+          "Configure DNS server parameter inside DHCP pool: dns-server <dns_server_ip>",
+          "Or configure static DNS address in client network adapter settings.",
+          "Flush client DNS cache and test: ipconfig /flushdns"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C009",
+      "issue_type": "DNS",
+      "concept": "DNS",
+      "severity": "Medium",
+      "osi_layer": "Layer 7",
+      "symptom": "Only one internal hostname fails",
+      "show_output": "DNS record for fileserver is absent",
+      "topology_note": "nslookup fileserver returns NXDOMAIN",
+      "expected_fault": "Missing DNS record",
+      "rule_matched": true,
+      "rule_name": "DNS_A_RECORD_MISSING",
+      "ai_diagnosis": {
+        "root_cause": "Authoritative DNS server has no Host (A) or CNAME record for the requested hostname.",
+        "confidence": 0.95,
+        "evidence": "nslookup returns NXDOMAIN status from authoritative DNS resolver.",
+        "next_command": "nslookup <hostname> <dns_server_ip>",
+        "fix_steps": [
+          "Access DNS server management / Cisco Packet Tracer DNS service tab.",
+          "Add A-record matching hostname to the target IP address.",
+          "Verify query resolution: nslookup <hostname>"
+        ],
+        "human_review_recommended": false
+      },
+      "human_review": {
+        "case_id": "C009",
+        "ai_root_cause": "Authoritative DNS server has no Host (A) or CNAME record for the requested hostname.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 7/Application",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Authoritative DNS server has no Host (A) or CNAME record for the requested hostname.",
+        "corrected_fix_steps": [
+          "Access DNS server management / Cisco Packet Tracer DNS service tab.",
+          "Add A-record matching hostname to the target IP address.",
+          "Verify query resolution: nslookup <hostname>"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C010",
+      "issue_type": "Routing",
+      "concept": "Routing",
+      "severity": "High",
+      "osi_layer": "Layer 3",
+      "symptom": "Router can reach directly connected networks but not remote LAN",
+      "show_output": "No static/dynamic route to 10.20.0.0/24",
+      "topology_note": "show ip route has no 10.20.0.0/24 entry",
+      "expected_fault": "Missing route",
+      "rule_matched": true,
+      "rule_name": "ROUTING_TABLE_MISSING_ROUTE",
+      "ai_diagnosis": {
+        "root_cause": "The routing table has no matching static or dynamic route for the target destination network.",
+        "confidence": 0.95,
+        "evidence": "show ip route lacks entry for the destination network prefix.",
+        "next_command": "show ip route",
+        "fix_steps": [
+          "Add static route: ip route <dest_network> <subnet_mask> <next_hop_ip_or_exit_int>",
+          "Or advertise the prefix in the active dynamic routing protocol (OSPF / EIGRP / RIP).",
+          "Verify routing table population: show ip route"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C010",
+        "ai_root_cause": "The routing table has no matching static or dynamic route for the target destination network.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 3/Network",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "The routing table has no matching static or dynamic route for the target destination network.",
+        "corrected_fix_steps": [
+          "Add static route: ip route <dest_network> <subnet_mask> <next_hop_ip_or_exit_int>",
+          "Or advertise the prefix in the active dynamic routing protocol (OSPF / EIGRP / RIP).",
+          "Verify routing table population: show ip route"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C011",
+      "issue_type": "Routing",
+      "concept": "Routing",
+      "severity": "High",
+      "osi_layer": "Layer 1/3",
+      "symptom": "Remote network route exists but traffic fails",
+      "show_output": "Gi0/0 is down",
+      "topology_note": "show ip route 10.20.0.0 shows next hop 10.0.0.9; ping next hop fails",
+      "expected_fault": "Broken next-hop/interface",
+      "rule_matched": true,
+      "rule_name": "NEXT_HOP_UNREACHABLE",
+      "ai_diagnosis": {
+        "root_cause": "The next-hop address for the static route is unreachable or its egress interface is down.",
+        "confidence": 0.94,
+        "evidence": "Ping to configured next-hop IP fails; exit interface is down/unresponsive.",
+        "next_command": "show ip interface brief | show cdp neighbors",
+        "fix_steps": [
+          "Verify physical cabling and link status on the local and neighboring interfaces.",
+          "Ensure the neighbor router interface is powered on and configured with correct IP: no shutdown",
+          "Update static route if next-hop IP was misconfigured: ip route <net> <mask> <correct_next_hop>"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C011",
+        "ai_root_cause": "The next-hop address for the static route is unreachable or its egress interface is down.",
+        "ai_confidence": 0.94,
+        "ai_osi_layer": "Layer 1/3",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "The next-hop address for the static route is unreachable or its egress interface is down.",
+        "corrected_fix_steps": [
+          "Verify physical cabling and link status on the local and neighboring interfaces.",
+          "Ensure the neighbor router interface is powered on and configured with correct IP: no shutdown",
+          "Update static route if next-hop IP was misconfigured: ip route <net> <mask> <correct_next_hop>"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C012",
+      "issue_type": "Routing",
+      "concept": "Routing",
+      "severity": "High",
+      "osi_layer": "Layer 3",
+      "symptom": "OSPF neighbors are not forming",
+      "show_output": "show run interface Gi0/0 has passive-interface effect",
+      "topology_note": "show ip ospf neighbor is empty",
+      "expected_fault": "OSPF interface is passive",
+      "rule_matched": true,
+      "rule_name": "OSPF_PASSIVE_INTERFACE_MISCONFIG",
+      "ai_diagnosis": {
+        "root_cause": "OSPF adjacency cannot form because the router link interface is suppressed by a 'passive-interface' statement.",
+        "confidence": 0.96,
+        "evidence": "show ip ospf neighbor is empty; interface configuration contains passive-interface command.",
+        "next_command": "show ip ospf interface <interface-id>",
+        "fix_steps": [
+          "Enter router OSPF configuration mode: router ospf <process-id>",
+          "Remove the passive-interface suppression on the neighbor link: no passive-interface <interface-id>",
+          "Verify OSPF neighbor state transitions to FULL: show ip ospf neighbor"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C012",
+        "ai_root_cause": "OSPF adjacency cannot form because the router link interface is suppressed by a 'passive-interface' statement.",
+        "ai_confidence": 0.96,
+        "ai_osi_layer": "Layer 3/Network",
+        "human_decision": "CORRECTED",
+        "human_agreed": false,
+        "corrected_root_cause": "OSPF interface Gi0/0 is configured as passive-interface, suppressing Hello exchanges.",
+        "corrected_fix_steps": [
+          "configure terminal",
+          "router ospf 1",
+          "no passive-interface GigabitEthernet0/0",
+          "end",
+          "show ip ospf neighbor"
+        ],
+        "human_reviewer_notes": "AI proposed restarting OSPF process; human reviewer identified passive-interface suppression on the direct neighbor link and issued 'no passive-interface Gi0/0'."
+      }
+    },
+    {
+      "case_id": "C013",
+      "issue_type": "ACL",
+      "concept": "ACL",
+      "severity": "High",
+      "osi_layer": "Layer 4",
+      "symptom": "PC can reach gateway but not web server",
+      "show_output": "HTTPS traffic explicitly denied",
+      "topology_note": "show access-lists shows deny tcp any host 10.10.10.50 eq 443",
+      "expected_fault": "ACL blocks HTTPS",
+      "rule_matched": true,
+      "rule_name": "ACL_BLOCKS_SERVICE_PORT",
+      "ai_diagnosis": {
+        "root_cause": "Access Control List (ACL) explicitly denies HTTPS (TCP/443) traffic.",
+        "confidence": 0.96,
+        "evidence": "show access-lists confirms explicit deny statement blocking HTTPS (TCP/443).",
+        "next_command": "show access-lists",
+        "fix_steps": [
+          "Inspect line sequence in the active ACL: show access-lists",
+          "Insert permit entry before the deny statement or remove blocking rule.",
+          "Apply updated ACL to interface: ip access-group <acl_name> in/out",
+          "Verify traffic flow."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C013",
+        "ai_root_cause": "Access Control List (ACL) explicitly denies HTTPS (TCP/443) traffic.",
+        "ai_confidence": 0.96,
+        "ai_osi_layer": "Layer 4/Transport",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Access Control List (ACL) explicitly denies HTTPS (TCP/443) traffic.",
+        "corrected_fix_steps": [
+          "Inspect line sequence in the active ACL: show access-lists",
+          "Insert permit entry before the deny statement or remove blocking rule.",
+          "Apply updated ACL to interface: ip access-group <acl_name> in/out",
+          "Verify traffic flow."
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C014",
+      "issue_type": "ACL",
+      "concept": "ACL",
+      "severity": "Critical",
+      "osi_layer": "Layer 3/4",
+      "symptom": "Guest VLAN can reach internal server",
+      "show_output": "Guest-to-internal deny rule is missing",
+      "topology_note": "show access-lists GUEST has no deny for 10.0.0.0/8",
+      "expected_fault": "Guest isolation ACL missing",
+      "rule_matched": true,
+      "rule_name": "GUEST_ISOLATION_ACL_MISSING",
+      "ai_diagnosis": {
+        "root_cause": "Missing guest segmentation ACL allowing guest network traffic into private RFC1918 subnets.",
+        "confidence": 0.95,
+        "evidence": "Guest VLAN/SSID access-list lacks deny rules for 10.0.0.0/8, 172.16.0.0/12, or 192.168.0.0/16.",
+        "next_command": "show access-lists | show run interface <guest_svi>",
+        "fix_steps": [
+          "Create guest isolation ACL: ip access-list extended GUEST_RESTRICTION",
+          "Deny private networks: deny ip any 10.0.0.0 0.255.255.255, deny ip any 192.168.0.0 0.0.255.255",
+          "Permit internet and DNS: permit udp any any eq 53, permit ip any any",
+          "Apply to Guest SVI/interface inbound: ip access-group GUEST_RESTRICTION in"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C014",
+        "ai_root_cause": "Missing guest segmentation ACL allowing guest network traffic into private RFC1918 subnets.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 3/4",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Missing guest segmentation ACL allowing guest network traffic into private RFC1918 subnets.",
+        "corrected_fix_steps": [
+          "Create guest isolation ACL: ip access-list extended GUEST_RESTRICTION",
+          "Deny private networks: deny ip any 10.0.0.0 0.255.255.255, deny ip any 192.168.0.0 0.0.255.255",
+          "Permit internet and DNS: permit udp any any eq 53, permit ip any any",
+          "Apply to Guest SVI/interface inbound: ip access-group GUEST_RESTRICTION in"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C015",
+      "issue_type": "ACL",
+      "concept": "ACL",
+      "severity": "High",
+      "osi_layer": "Layer 4/7",
+      "symptom": "SSH to router fails but ping works",
+      "show_output": "SSH source is denied",
+      "topology_note": "show access-lists VTY-ACL denies tcp host 192.168.5.10 any eq 22",
+      "expected_fault": "VTY/ACL blocks SSH",
+      "rule_matched": true,
+      "rule_name": "VTY_ACCESS_CLASS_SSH_BLOCKED",
+      "ai_diagnosis": {
+        "root_cause": "Access-class applied to VTY lines denies SSH connection from administrator management IP.",
+        "confidence": 0.95,
+        "evidence": "VTY ACL denies source IP on TCP port 22.",
+        "next_command": "show access-lists | show running-config | section line vty",
+        "fix_steps": [
+          "Modify VTY ACL to permit management host: permit tcp host <admin_ip> any eq 22",
+          "Or rebind correct access-list under line vty 0 4: access-class <correct_acl> in",
+          "Verify SSH connectivity from admin station."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C015",
+        "ai_root_cause": "Access-class applied to VTY lines denies SSH connection from administrator management IP.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 4/7",
+        "human_decision": "CORRECTED",
+        "human_agreed": false,
+        "corrected_root_cause": "VTY line access-class ACL explicitly denies SSH source IP 192.168.5.10.",
+        "corrected_fix_steps": [
+          "configure terminal",
+          "ip access-list extended VTY-ACL",
+          "permit tcp host 192.168.5.10 any eq 22",
+          "end"
+        ],
+        "human_reviewer_notes": "AI initially suspected crypto key zeroization; human review revealed VTY access-class ACL explicitly denying management station IP on port 22."
+      }
+    },
+    {
+      "case_id": "C016",
+      "issue_type": "NAT",
+      "concept": "NAT",
+      "severity": "High",
+      "osi_layer": "Layer 3",
+      "symptom": "Inside client has internet route but public access fails",
+      "show_output": "Inside interface is not marked for NAT",
+      "topology_note": "show ip nat translations is empty; show run lacks ip nat inside",
+      "expected_fault": "NAT inside role missing",
+      "rule_matched": true,
+      "rule_name": "NAT_INSIDE_ROLE_MISSING",
+      "ai_diagnosis": {
+        "root_cause": "Internal LAN interface is not configured with 'ip nat inside', preventing NAT translation triggering.",
+        "confidence": 0.97,
+        "evidence": "show ip nat translations is empty; show running-config lacks 'ip nat inside' on LAN interface.",
+        "next_command": "show ip interface brief | show run interface <lan_interface>",
+        "fix_steps": [
+          "Enter inside LAN interface configuration mode: interface <inside_interface>",
+          "Enable NAT inside routing: ip nat inside",
+          "Verify outside interface has 'ip nat outside'",
+          "Test outbound client traffic: show ip nat translations"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C016",
+        "ai_root_cause": "Internal LAN interface is not configured with 'ip nat inside', preventing NAT translation triggering.",
+        "ai_confidence": 0.97,
+        "ai_osi_layer": "Layer 3/Network",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Internal LAN interface is not configured with 'ip nat inside', preventing NAT translation triggering.",
+        "corrected_fix_steps": [
+          "Enter inside LAN interface configuration mode: interface <inside_interface>",
+          "Enable NAT inside routing: ip nat inside",
+          "Verify outside interface has 'ip nat outside'",
+          "Test outbound client traffic: show ip nat translations"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C017",
+      "issue_type": "NAT",
+      "concept": "NAT",
+      "severity": "Medium",
+      "osi_layer": "Layer 3",
+      "symptom": "Only some internal hosts reach internet",
+      "show_output": "NAT pool exhausted",
+      "topology_note": "show ip nat statistics shows pool has no free addresses",
+      "expected_fault": "NAT pool exhausted",
+      "rule_matched": true,
+      "rule_name": "NAT_POOL_EXHAUSTION",
+      "ai_diagnosis": {
+        "root_cause": "Dynamic NAT pool address space is exhausted due to missing PAT 'overload' configuration.",
+        "confidence": 0.95,
+        "evidence": "show ip nat statistics shows 100% address allocation in the dynamic NAT pool.",
+        "next_command": "show ip nat statistics",
+        "fix_steps": [
+          "Configure Port Address Translation (PAT) overload: ip nat inside source list <acl_num> pool <pool_name> overload",
+          "Or overload on the outside interface: ip nat inside source list <acl_num> interface <outside_interface> overload",
+          "Clear stale dynamic translations: clear ip nat translation *"
+        ],
+        "human_review_recommended": false
+      },
+      "human_review": {
+        "case_id": "C017",
+        "ai_root_cause": "Dynamic NAT pool address space is exhausted due to missing PAT 'overload' configuration.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 3/Network",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Dynamic NAT pool address space is exhausted due to missing PAT 'overload' configuration.",
+        "corrected_fix_steps": [
+          "Configure Port Address Translation (PAT) overload: ip nat inside source list <acl_num> pool <pool_name> overload",
+          "Or overload on the outside interface: ip nat inside source list <acl_num> interface <outside_interface> overload",
+          "Clear stale dynamic translations: clear ip nat translation *"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C018",
+      "issue_type": "NAT",
+      "concept": "NAT",
+      "severity": "High",
+      "osi_layer": "Layer 3",
+      "symptom": "NAT translations exist but internet still fails",
+      "show_output": "No 0.0.0.0/0 route",
+      "topology_note": "show ip nat translations shows translated address; default route absent",
+      "expected_fault": "Missing default route",
+      "rule_matched": true,
+      "rule_name": "NAT_MISSING_DEFAULT_ROUTE",
+      "ai_diagnosis": {
+        "root_cause": "Edge router performs NAT translation but lacks a default gateway route (0.0.0.0/0) to route traffic to the ISP.",
+        "confidence": 0.96,
+        "evidence": "show ip nat translations displays active mappings, but show ip route has no gateway of last resort.",
+        "next_command": "show ip route",
+        "fix_steps": [
+          "Add default gateway route pointing to ISP: ip route 0.0.0.0 0.0.0.0 <ISP_Gateway_IP_or_Exit_Interface>",
+          "Verify Gateway of last resort is set: show ip route",
+          "Test internet ping from inside client."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C018",
+        "ai_root_cause": "Edge router performs NAT translation but lacks a default gateway route (0.0.0.0/0) to route traffic to the ISP.",
+        "ai_confidence": 0.96,
+        "ai_osi_layer": "Layer 3/Network",
+        "human_decision": "CORRECTED",
+        "human_agreed": false,
+        "corrected_root_cause": "NAT translations generated, but router lacks default route (0.0.0.0/0) to route traffic to the ISP.",
+        "corrected_fix_steps": [
+          "configure terminal",
+          "ip route 0.0.0.0 0.0.0.0 203.0.113.1",
+          "end",
+          "show ip route"
+        ],
+        "human_reviewer_notes": "AI suggested NAT overload ACL re-indexing; human caught missing default route (0.0.0.0/0) required for translated packet egress to ISP."
+      }
+    },
+    {
+      "case_id": "C019",
+      "issue_type": "Wireless",
+      "concept": "Wireless",
+      "severity": "High",
+      "osi_layer": "Layer 2/7",
+      "symptom": "Wi-Fi clients associate but get no IP",
+      "show_output": "AP uplink VLAN mismatch",
+      "topology_note": "AP is connected to switch; switch port is access VLAN 1 while SSID is mapped to VLAN 30",
+      "expected_fault": "Wireless VLAN mapping mismatch",
+      "rule_matched": true,
+      "rule_name": "WIRELESS_VLAN_TRUNK_MISMATCH",
+      "ai_diagnosis": {
+        "root_cause": "Access Point (AP) switchport is in Access Mode instead of Trunk Mode, dropping tagged multi-SSID traffic.",
+        "confidence": 0.96,
+        "evidence": "AP SSID maps to VLAN 30 but connected switch port is configured as untagged access VLAN 1.",
+        "next_command": "show interfaces <ap_switchport> switchport",
+        "fix_steps": [
+          "Configure switchport connected to Access Point as a trunk: switchport mode trunk",
+          "Allow required wireless VLANs: switchport trunk allowed vlan add 10,20,30,40",
+          "Verify wireless client receives DHCP IP in designated VLAN subnet."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C019",
+        "ai_root_cause": "Access Point (AP) switchport is in Access Mode instead of Trunk Mode, dropping tagged multi-SSID traffic.",
+        "ai_confidence": 0.96,
+        "ai_osi_layer": "Layer 2/7",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Access Point (AP) switchport is in Access Mode instead of Trunk Mode, dropping tagged multi-SSID traffic.",
+        "corrected_fix_steps": [
+          "Configure switchport connected to Access Point as a trunk: switchport mode trunk",
+          "Allow required wireless VLANs: switchport trunk allowed vlan add 10,20,30,40",
+          "Verify wireless client receives DHCP IP in designated VLAN subnet."
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C020",
+      "issue_type": "Wireless",
+      "concept": "Wireless",
+      "severity": "Critical",
+      "osi_layer": "Layer 3/4",
+      "symptom": "Guest Wi-Fi reaches corporate subnet",
+      "show_output": "No guest isolation policy",
+      "topology_note": "show vlan brief shows Guest VLAN 40; ACL has no isolation rule",
+      "expected_fault": "Guest isolation failure",
+      "rule_matched": true,
+      "rule_name": "GUEST_ISOLATION_ACL_MISSING",
+      "ai_diagnosis": {
+        "root_cause": "Missing guest segmentation ACL allowing guest network traffic into private RFC1918 subnets.",
+        "confidence": 0.95,
+        "evidence": "Guest VLAN/SSID access-list lacks deny rules for 10.0.0.0/8, 172.16.0.0/12, or 192.168.0.0/16.",
+        "next_command": "show access-lists | show run interface <guest_svi>",
+        "fix_steps": [
+          "Create guest isolation ACL: ip access-list extended GUEST_RESTRICTION",
+          "Deny private networks: deny ip any 10.0.0.0 0.255.255.255, deny ip any 192.168.0.0 0.0.255.255",
+          "Permit internet and DNS: permit udp any any eq 53, permit ip any any",
+          "Apply to Guest SVI/interface inbound: ip access-group GUEST_RESTRICTION in"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C020",
+        "ai_root_cause": "Missing guest segmentation ACL allowing guest network traffic into private RFC1918 subnets.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 3/4",
+        "human_decision": "CORRECTED",
+        "human_agreed": false,
+        "corrected_root_cause": "Guest Wi-Fi VLAN 40 lacks Layer 3 egress ACL on the default gateway to block RFC1918 corporate networks.",
+        "corrected_fix_steps": [
+          "configure terminal",
+          "ip access-list extended GUEST_SEGREGATION",
+          "deny ip any 10.0.0.0 0.255.255.255",
+          "deny ip any 172.16.0.0 0.15.255.255",
+          "deny ip any 192.168.0.0 0.0.255.255",
+          "permit ip any any",
+          "interface Vlan40",
+          "ip access-group GUEST_SEGREGATION in",
+          "end"
+        ],
+        "human_reviewer_notes": "AI proposed L2 guest isolation on AP only; human added Layer 3 inter-VLAN ACL on the core router/SVI to enforce zero-trust boundary."
+      }
+    },
+    {
+      "case_id": "C021",
+      "issue_type": "Interface",
+      "concept": "Interface",
+      "severity": "High",
+      "osi_layer": "Layer 1",
+      "symptom": "Two routers cannot ping each other",
+      "show_output": "Interface shutdown",
+      "topology_note": "show interfaces Gi0/0 = administratively down",
+      "expected_fault": "Interface administratively down",
+      "rule_matched": true,
+      "rule_name": "INTERFACE_ADMIN_DOWN",
+      "ai_diagnosis": {
+        "root_cause": "Interface Gi0/0 is administratively shut down.",
+        "confidence": 0.98,
+        "evidence": "Output indicates 'Gi0/0 is administratively down'",
+        "next_command": "show interfaces Gi0/0 status",
+        "fix_steps": [
+          "Enter privileged EXEC mode: enable",
+          "Enter global configuration mode: configure terminal",
+          "Enter interface sub-configuration mode: interface Gi0/0",
+          "Enable the port: no shutdown",
+          "Verify interface state: show ip interface brief"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C021",
+        "ai_root_cause": "Interface Gi0/0 is administratively shut down.",
+        "ai_confidence": 0.98,
+        "ai_osi_layer": "Layer 1/Physical",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Interface Gi0/0 is administratively shut down.",
+        "corrected_fix_steps": [
+          "Enter privileged EXEC mode: enable",
+          "Enter global configuration mode: configure terminal",
+          "Enter interface sub-configuration mode: interface Gi0/0",
+          "Enable the port: no shutdown",
+          "Verify interface state: show ip interface brief"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C022",
+      "issue_type": "Interface",
+      "concept": "Interface",
+      "severity": "Medium",
+      "osi_layer": "Layer 1",
+      "symptom": "Link is down despite interface being enabled",
+      "show_output": "Connected switch port forced to different duplex",
+      "topology_note": "show interfaces Gi0/1 = line protocol down; speed/duplex mismatch",
+      "expected_fault": "Speed/duplex mismatch",
+      "rule_matched": true,
+      "rule_name": "SPEED_DUPLEX_OR_LINK_DOWN",
+      "ai_diagnosis": {
+        "root_cause": "Speed/duplex mismatch or physical carrier loss causing line protocol failure.",
+        "confidence": 0.95,
+        "evidence": "show interfaces reports line protocol down and/or speed/duplex mismatch",
+        "next_command": "show interfaces status | show controllers",
+        "fix_steps": [
+          "Access interface configuration mode on both connected endpoints.",
+          "Set uniform duplex: duplex full (or duplex auto on both ends).",
+          "Set uniform speed: speed 1000 (or speed auto on both ends).",
+          "Check cable integrity and patch connections."
+        ],
+        "human_review_recommended": false
+      },
+      "human_review": {
+        "case_id": "C022",
+        "ai_root_cause": "Speed/duplex mismatch or physical carrier loss causing line protocol failure.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 1/Physical",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Speed/duplex mismatch or physical carrier loss causing line protocol failure.",
+        "corrected_fix_steps": [
+          "Access interface configuration mode on both connected endpoints.",
+          "Set uniform duplex: duplex full (or duplex auto on both ends).",
+          "Set uniform speed: speed 1000 (or speed auto on both ends).",
+          "Check cable integrity and patch connections."
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C023",
+      "issue_type": "Trunk",
+      "concept": "VLAN",
+      "severity": "High",
+      "osi_layer": "Layer 2",
+      "symptom": "VLAN works on one switch but not another",
+      "show_output": "Both ends failed to negotiate trunk",
+      "topology_note": "show interfaces trunk shows Gi0/1 is dynamic auto on both ends",
+      "expected_fault": "Trunk negotiation failure",
+      "rule_matched": true,
+      "rule_name": "DTP_NEGOTIATION_FAILURE",
+      "ai_diagnosis": {
+        "root_cause": "Both trunk endpoints configured as 'dynamic auto', resulting in an access port state rather than a trunk.",
+        "confidence": 0.95,
+        "evidence": "DTP operational mode remains static access because neither side actively initiated trunking.",
+        "next_command": "show dtp interface <interface-id>",
+        "fix_steps": [
+          "Enter trunk interface configuration mode.",
+          "Explicitly configure trunk mode: switchport mode trunk",
+          "Or set one end to dynamic desirable: switchport mode dynamic desirable",
+          "Verify active trunking: show interfaces trunk"
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C023",
+        "ai_root_cause": "Both trunk endpoints configured as 'dynamic auto', resulting in an access port state rather than a trunk.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 2/Data Link",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Both trunk endpoints configured as 'dynamic auto', resulting in an access port state rather than a trunk.",
+        "corrected_fix_steps": [
+          "Enter trunk interface configuration mode.",
+          "Explicitly configure trunk mode: switchport mode trunk",
+          "Or set one end to dynamic desirable: switchport mode dynamic desirable",
+          "Verify active trunking: show interfaces trunk"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C024",
+      "issue_type": "VLAN",
+      "concept": "VLAN",
+      "severity": "Medium",
+      "osi_layer": "Layer 2",
+      "symptom": "Native VLAN mismatch warning appears",
+      "show_output": "SW1 native 99; SW2 native 1",
+      "topology_note": "show interfaces trunk reports native VLAN mismatch 99 vs 1",
+      "expected_fault": "Native VLAN mismatch",
+      "rule_matched": true,
+      "rule_name": "NATIVE_VLAN_MISMATCH",
+      "ai_diagnosis": {
+        "root_cause": "Native VLAN mismatch between neighboring 802.1Q trunk ports.",
+        "confidence": 0.97,
+        "evidence": "CDP/STP warning indicates native VLAN ID discrepancy across the trunk link.",
+        "next_command": "show interfaces trunk",
+        "fix_steps": [
+          "Identify the configured native VLAN on both interconnected switch ports.",
+          "Standardize the native VLAN ID (e.g., VLAN 99): switchport trunk native vlan 99",
+          "Apply to both switches and verify with: show interfaces trunk"
+        ],
+        "human_review_recommended": false
+      },
+      "human_review": {
+        "case_id": "C024",
+        "ai_root_cause": "Native VLAN mismatch between neighboring 802.1Q trunk ports.",
+        "ai_confidence": 0.97,
+        "ai_osi_layer": "Layer 2/Data Link",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Native VLAN mismatch between neighboring 802.1Q trunk ports.",
+        "corrected_fix_steps": [
+          "Identify the configured native VLAN on both interconnected switch ports.",
+          "Standardize the native VLAN ID (e.g., VLAN 99): switchport trunk native vlan 99",
+          "Apply to both switches and verify with: show interfaces trunk"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C025",
+      "issue_type": "DHCP",
+      "concept": "DHCP",
+      "severity": "Medium",
+      "osi_layer": "Layer 7",
+      "symptom": "Some clients get DHCP and others do not",
+      "show_output": "Excluded range overlaps client addresses",
+      "topology_note": "show ip dhcp pool USERS has excluded-address covering part of active range",
+      "expected_fault": "Incorrect DHCP exclusion",
+      "rule_matched": true,
+      "rule_name": "DHCP_EXCLUDED_ADDRESS_OVERLAP",
+      "ai_diagnosis": {
+        "root_cause": "DHCP excluded-address range is overly broad, encompassing addresses intended for dynamic client assignment.",
+        "confidence": 0.94,
+        "evidence": "ip dhcp excluded-address range excludes valid host assignable addresses in the scope.",
+        "next_command": "show running-config | include excluded-address",
+        "fix_steps": [
+          "Remove overly broad exclusion: no ip dhcp excluded-address <start_ip> <end_ip>",
+          "Configure narrow exclusion for static servers/gateways only: ip dhcp excluded-address <start_ip> <end_ip>",
+          "Verify available pool address space: show ip dhcp pool"
+        ],
+        "human_review_recommended": false
+      },
+      "human_review": {
+        "case_id": "C025",
+        "ai_root_cause": "DHCP excluded-address range is overly broad, encompassing addresses intended for dynamic client assignment.",
+        "ai_confidence": 0.94,
+        "ai_osi_layer": "Layer 7/Application",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "DHCP excluded-address range is overly broad, encompassing addresses intended for dynamic client assignment.",
+        "corrected_fix_steps": [
+          "Remove overly broad exclusion: no ip dhcp excluded-address <start_ip> <end_ip>",
+          "Configure narrow exclusion for static servers/gateways only: ip dhcp excluded-address <start_ip> <end_ip>",
+          "Verify available pool address space: show ip dhcp pool"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C026",
+      "issue_type": "Routing",
+      "concept": "Routing",
+      "severity": "Critical",
+      "osi_layer": "Layer 3",
+      "symptom": "Packets loop between two routers",
+      "show_output": "Mutual incorrect static routes",
+      "topology_note": "show ip route 10.50.0.0/16 points to each other via next hops",
+      "expected_fault": "Routing loop",
+      "rule_matched": true,
+      "rule_name": "ROUTING_LOOP_DETECTED",
+      "ai_diagnosis": {
+        "root_cause": "Mutual incorrect static routes configured pointing traffic back and forth between adjacent routers.",
+        "confidence": 0.98,
+        "evidence": "show ip route indicates cyclical next-hop paths for the same destination prefix.",
+        "next_command": "traceroute <dest_ip>",
+        "fix_steps": [
+          "Examine routing tables on both routers: show ip route",
+          "Remove redundant or circular static route: no ip route <prefix> <mask> <wrong_next_hop>",
+          "Configure accurate outbound next-hop towards the true destination gateway."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C026",
+        "ai_root_cause": "Mutual incorrect static routes configured pointing traffic back and forth between adjacent routers.",
+        "ai_confidence": 0.98,
+        "ai_osi_layer": "Layer 3/Network",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Mutual incorrect static routes configured pointing traffic back and forth between adjacent routers.",
+        "corrected_fix_steps": [
+          "Examine routing tables on both routers: show ip route",
+          "Remove redundant or circular static route: no ip route <prefix> <mask> <wrong_next_hop>",
+          "Configure accurate outbound next-hop towards the true destination gateway."
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C027",
+      "issue_type": "ACL",
+      "concept": "ACL",
+      "severity": "High",
+      "osi_layer": "Layer 4",
+      "symptom": "Ping works but DNS queries fail",
+      "show_output": "DNS UDP is denied",
+      "topology_note": "show access-lists permits ICMP but denies udp any any eq 53",
+      "expected_fault": "ACL blocks DNS",
+      "rule_matched": true,
+      "rule_name": "ACL_BLOCKS_SERVICE_PORT",
+      "ai_diagnosis": {
+        "root_cause": "Access Control List (ACL) explicitly denies DNS (UDP/53) traffic.",
+        "confidence": 0.96,
+        "evidence": "show access-lists confirms explicit deny statement blocking DNS (UDP/53).",
+        "next_command": "show access-lists",
+        "fix_steps": [
+          "Inspect line sequence in the active ACL: show access-lists",
+          "Insert permit entry before the deny statement or remove blocking rule.",
+          "Apply updated ACL to interface: ip access-group <acl_name> in/out",
+          "Verify traffic flow."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C027",
+        "ai_root_cause": "Access Control List (ACL) explicitly denies DNS (UDP/53) traffic.",
+        "ai_confidence": 0.96,
+        "ai_osi_layer": "Layer 4/Transport",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Access Control List (ACL) explicitly denies DNS (UDP/53) traffic.",
+        "corrected_fix_steps": [
+          "Inspect line sequence in the active ACL: show access-lists",
+          "Insert permit entry before the deny statement or remove blocking rule.",
+          "Apply updated ACL to interface: ip access-group <acl_name> in/out",
+          "Verify traffic flow."
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C028",
+      "issue_type": "NAT",
+      "concept": "NAT",
+      "severity": "High",
+      "osi_layer": "Layer 4",
+      "symptom": "Port-forwarded server is unreachable from outside",
+      "show_output": "Inbound ACL blocks forwarded port",
+      "topology_note": "show run shows ip nat inside source static tcp 192.168.1.10 80 203.0.113.10 8080; ACL denies 8080",
+      "expected_fault": "ACL blocks port forwarding",
+      "rule_matched": true,
+      "rule_name": "ACL_BLOCKS_PORT_FORWARDING",
+      "ai_diagnosis": {
+        "root_cause": "Outside interface ACL filters out inbound traffic before it reaches the static NAT port-forwarding destination.",
+        "confidence": 0.95,
+        "evidence": "Outside inbound ACL lacks permit rule for forwarded public destination port.",
+        "next_command": "show access-lists | show ip nat translations",
+        "fix_steps": [
+          "Update outside ACL to permit external traffic: permit tcp any host <public_ip> eq <port>",
+          "Verify NAT static translation: show ip nat translations",
+          "Test connection from external client."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C028",
+        "ai_root_cause": "Outside interface ACL filters out inbound traffic before it reaches the static NAT port-forwarding destination.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 4/Transport",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Outside interface ACL filters out inbound traffic before it reaches the static NAT port-forwarding destination.",
+        "corrected_fix_steps": [
+          "Update outside ACL to permit external traffic: permit tcp any host <public_ip> eq <port>",
+          "Verify NAT static translation: show ip nat translations",
+          "Test connection from external client."
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    },
+    {
+      "case_id": "C029",
+      "issue_type": "VLAN",
+      "concept": "Interface",
+      "severity": "High",
+      "osi_layer": "Layer 2",
+      "symptom": "PC gets correct IP but cannot reach same-VLAN printer",
+      "show_output": "Port security violation placed port in err-disabled state",
+      "topology_note": "show vlan brief is correct; show interfaces printer-port is err-disabled",
+      "expected_fault": "Port security shutdown",
+      "rule_matched": true,
+      "rule_name": "PORT_SECURITY_ERR_DISABLED",
+      "ai_diagnosis": {
+        "root_cause": "Port security violation placed the interface into err-disabled state.",
+        "confidence": 0.96,
+        "evidence": "Interface status shows 'err-disabled' due to unauthorized MAC address or security threshold violation.",
+        "next_command": "show port-security interface <interface-id>",
+        "fix_steps": [
+          "Identify offending unauthorized MAC address: show port-security address",
+          "Enter interface configuration mode.",
+          "Clear the error condition: shutdown followed by no shutdown",
+          "Optionally adjust maximum authorized MACs or secure MAC table."
+        ],
+        "human_review_recommended": true
+      },
+      "human_review": {
+        "case_id": "C029",
+        "ai_root_cause": "Port security violation placed the interface into err-disabled state.",
+        "ai_confidence": 0.96,
+        "ai_osi_layer": "Layer 2/Data Link",
+        "human_decision": "CORRECTED",
+        "human_agreed": false,
+        "corrected_root_cause": "Port security violation occurred on printer port, placing interface into err-disabled state.",
+        "corrected_fix_steps": [
+          "configure terminal",
+          "interface GigabitEthernet0/10",
+          "shutdown",
+          "no shutdown",
+          "switchport port-security violation restrict",
+          "end"
+        ],
+        "human_reviewer_notes": "AI hypothesized physical patch cable defect; human identified port-security MAC violation err-disable state and restored port with shutdown / no shutdown cycle."
+      }
+    },
+    {
+      "case_id": "C030",
+      "issue_type": "DNS",
+      "concept": "DNS",
+      "severity": "Medium",
+      "osi_layer": "Layer 7",
+      "symptom": "Internet IPs work but internal names fail",
+      "show_output": "Clients use public DNS instead of internal resolver",
+      "topology_note": "nslookup uses public DNS 8.8.8.8; internal zone is private",
+      "expected_fault": "Wrong DNS resolver",
+      "rule_matched": true,
+      "rule_name": "DNS_INCORRECT_RESOLVER",
+      "ai_diagnosis": {
+        "root_cause": "Clients are assigned external public DNS (e.g. 8.8.8.8) which cannot resolve internal private enterprise domains.",
+        "confidence": 0.95,
+        "evidence": "Internal zone lookup directed to public resolver 8.8.8.8 instead of enterprise DNS server.",
+        "next_command": "nslookup <internal_hostname>",
+        "fix_steps": [
+          "Update DHCP pool configuration: dns-server <internal_dns_ip>",
+          "Configure DNS forwarder on internal server for internet recursive lookups.",
+          "Renew client lease: ipconfig /renew"
+        ],
+        "human_review_recommended": false
+      },
+      "human_review": {
+        "case_id": "C030",
+        "ai_root_cause": "Clients are assigned external public DNS (e.g. 8.8.8.8) which cannot resolve internal private enterprise domains.",
+        "ai_confidence": 0.95,
+        "ai_osi_layer": "Layer 7/Application",
+        "human_decision": "APPROVED",
+        "human_agreed": true,
+        "corrected_root_cause": "Clients are assigned external public DNS (e.g. 8.8.8.8) which cannot resolve internal private enterprise domains.",
+        "corrected_fix_steps": [
+          "Update DHCP pool configuration: dns-server <internal_dns_ip>",
+          "Configure DNS forwarder on internal server for internet recursive lookups.",
+          "Renew client lease: ipconfig /renew"
+        ],
+        "human_reviewer_notes": "Diagnosis and CLI remediation commands verified against network topology."
+      }
+    }
+  ]
+}

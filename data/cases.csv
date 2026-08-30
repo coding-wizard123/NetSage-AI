@@ -1,0 +1,31 @@
+case_id,issue_type,symptom,topology_note,show_output,expected_fault,osi_layer,concept,severity
+C001,VLAN,PC in VLAN 10 gets IP but cannot reach another VLAN,SW1 show vlan brief shows VLAN 10; trunk output does not list VLAN 10,"interface Gi0/1 trunk allowed VLANs 20,30",VLAN 10 missing from trunk allowed list,Layer 2,VLAN,Medium
+C002,VLAN,PCs in same VLAN cannot communicate,show vlan brief places PC ports in VLAN 20 and 30 unexpectedly,Gi0/2 access vlan 30; expected VLAN 20,Access port assigned to wrong VLAN,Layer 2,VLAN,High
+C003,Gateway,PC can reach local VLAN but not remote networks,"PC ipconfig: 192.168.10.25/24, gateway 192.168.20.1",Gateway is outside PC subnet,Incorrect default gateway,Layer 3,Gateway,High
+C004,Gateway,PC has IP but cannot ping its gateway,PC: 192.168.10.50/24; gateway 192.168.10.1,show interfaces Gi0/1 = administratively down,Gateway interface is shut down,Layer 1/3,Gateway,High
+C005,DHCP,PC receives 169.254.x.x address,show ip dhcp pool USERS shows no free addresses,Pool maximum address is exhausted,DHCP pool exhausted,Layer 7,DHCP,High
+C006,DHCP,PC receives IP but wrong subnet,show ip dhcp binding shows 192.168.20.x for VLAN 10 clients,Pool network is 192.168.20.0/24,DHCP pool has wrong network,Layer 7,DHCP,High
+C007,DHCP,DHCP clients in another VLAN get no address,show run interface vlan 30 has no helper-address,No ip helper-address configured,Missing DHCP relay,Layer 3/7,DHCP,High
+C008,DNS,PC can ping 8.8.8.8 but cannot open example.com,nslookup example.com times out,ipconfig shows DNS server 0.0.0.0,DNS server configuration missing,Layer 7,DNS,Medium
+C009,DNS,Only one internal hostname fails,nslookup fileserver returns NXDOMAIN,DNS record for fileserver is absent,Missing DNS record,Layer 7,DNS,Medium
+C010,Routing,Router can reach directly connected networks but not remote LAN,show ip route has no 10.20.0.0/24 entry,No static/dynamic route to 10.20.0.0/24,Missing route,Layer 3,Routing,High
+C011,Routing,Remote network route exists but traffic fails,show ip route 10.20.0.0 shows next hop 10.0.0.9; ping next hop fails,Gi0/0 is down,Broken next-hop/interface,Layer 1/3,Routing,High
+C012,Routing,OSPF neighbors are not forming,show ip ospf neighbor is empty,show run interface Gi0/0 has passive-interface effect,OSPF interface is passive,Layer 3,Routing,High
+C013,ACL,PC can reach gateway but not web server,show access-lists shows deny tcp any host 10.10.10.50 eq 443,HTTPS traffic explicitly denied,ACL blocks HTTPS,Layer 4,ACL,High
+C014,ACL,Guest VLAN can reach internal server,show access-lists GUEST has no deny for 10.0.0.0/8,Guest-to-internal deny rule is missing,Guest isolation ACL missing,Layer 3/4,ACL,Critical
+C015,ACL,SSH to router fails but ping works,show access-lists VTY-ACL denies tcp host 192.168.5.10 any eq 22,SSH source is denied,VTY/ACL blocks SSH,Layer 4/7,ACL,High
+C016,NAT,Inside client has internet route but public access fails,show ip nat translations is empty; show run lacks ip nat inside,Inside interface is not marked for NAT,NAT inside role missing,Layer 3,NAT,High
+C017,NAT,Only some internal hosts reach internet,show ip nat statistics shows pool has no free addresses,NAT pool exhausted,NAT pool exhausted,Layer 3,NAT,Medium
+C018,NAT,NAT translations exist but internet still fails,show ip nat translations shows translated address; default route absent,No 0.0.0.0/0 route,Missing default route,Layer 3,NAT,High
+C019,Wireless,Wi-Fi clients associate but get no IP,AP is connected to switch; switch port is access VLAN 1 while SSID is mapped to VLAN 30,AP uplink VLAN mismatch,Wireless VLAN mapping mismatch,Layer 2/7,Wireless,High
+C020,Wireless,Guest Wi-Fi reaches corporate subnet,show vlan brief shows Guest VLAN 40; ACL has no isolation rule,No guest isolation policy,Guest isolation failure,Layer 3/4,Wireless,Critical
+C021,Interface,Two routers cannot ping each other,show interfaces Gi0/0 = administratively down,Interface shutdown,Interface administratively down,Layer 1,Interface,High
+C022,Interface,Link is down despite interface being enabled,show interfaces Gi0/1 = line protocol down; speed/duplex mismatch,Connected switch port forced to different duplex,Speed/duplex mismatch,Layer 1,Interface,Medium
+C023,Trunk,VLAN works on one switch but not another,show interfaces trunk shows Gi0/1 is dynamic auto on both ends,Both ends failed to negotiate trunk,Trunk negotiation failure,Layer 2,VLAN,High
+C024,VLAN,Native VLAN mismatch warning appears,show interfaces trunk reports native VLAN mismatch 99 vs 1,SW1 native 99; SW2 native 1,Native VLAN mismatch,Layer 2,VLAN,Medium
+C025,DHCP,Some clients get DHCP and others do not,show ip dhcp pool USERS has excluded-address covering part of active range,Excluded range overlaps client addresses,Incorrect DHCP exclusion,Layer 7,DHCP,Medium
+C026,Routing,Packets loop between two routers,show ip route 10.50.0.0/16 points to each other via next hops,Mutual incorrect static routes,Routing loop,Layer 3,Routing,Critical
+C027,ACL,Ping works but DNS queries fail,show access-lists permits ICMP but denies udp any any eq 53,DNS UDP is denied,ACL blocks DNS,Layer 4,ACL,High
+C028,NAT,Port-forwarded server is unreachable from outside,show run shows ip nat inside source static tcp 192.168.1.10 80 203.0.113.10 8080; ACL denies 8080,Inbound ACL blocks forwarded port,ACL blocks port forwarding,Layer 4,NAT,High
+C029,VLAN,PC gets correct IP but cannot reach same-VLAN printer,show vlan brief is correct; show interfaces printer-port is err-disabled,Port security violation placed port in err-disabled state,Port security shutdown,Layer 2,Interface,High
+C030,DNS,Internet IPs work but internal names fail,nslookup uses public DNS 8.8.8.8; internal zone is private,Clients use public DNS instead of internal resolver,Wrong DNS resolver,Layer 7,DNS,Medium
