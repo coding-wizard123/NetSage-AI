@@ -659,6 +659,34 @@ class RuleChecker:
         return None
 
 
+def run_checker_on_dataset(cases: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Runs deterministic rule checker across all cases and attaches results."""
+    checker = RuleChecker()
+    results = []
+    
+    for case in cases:
+        diag = checker.diagnose(
+            symptom=case.get("symptom", ""),
+            show_output=case.get("show_output", ""),
+            topology_note=case.get("topology_note", "")
+        )
+        case_result = {
+            "case_id": case["case_id"],
+            "issue_type": case.get("issue_type", case.get("concept", "")),
+            "expected_fault": case.get("expected_fault", ""),
+            "expected_osi": case.get("osi_layer", ""),
+            "rule_matched": diag["rule_matched"],
+            "rule_name": diag["rule_name"],
+            "diagnosed_root_cause": diag["root_cause"],
+            "diagnosed_osi": diag["osi_layer"],
+            "confidence": diag["confidence"],
+            "evidence": diag["evidence"],
+            "fix_steps": diag["fix_steps"]
+        }
+        results.append(case_result)
+        
+    return results
+
 def run_checks_on_file(csv_file: str) -> None:
     """Helper to run the checker on a CSV dataset and print diagnostic summary."""
     if not os.path.exists(csv_file):
@@ -693,3 +721,4 @@ def run_checks_on_file(csv_file: str) -> None:
 if __name__ == "__main__":
     csv_target = "cases.csv" if os.path.exists("cases.csv") else os.path.join("data", "cases.csv")
     run_checks_on_file(csv_target)
+
