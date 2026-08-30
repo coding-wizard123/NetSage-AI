@@ -200,11 +200,29 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Optional Gemini API Key config
-api_key = st.sidebar.text_input("Gemini API Key (Optional):", type="password", placeholder="Enter API Key for live LLM")
-if api_key:
-    os.environ["GEMINI_API_KEY"] = api_key
-    st.sidebar.success("🔑 Custom API Key active")
+# API Key detection (Streamlit Cloud Secrets > Environment Variable > Sidebar Input)
+secret_key = ""
+try:
+    if hasattr(st, "secrets") and "GEMINI_API_KEY" in st.secrets:
+        secret_key = st.secrets["GEMINI_API_KEY"]
+except Exception:
+    secret_key = ""
+
+active_key = secret_key or os.environ.get("GEMINI_API_KEY", "")
+
+api_key_input = st.sidebar.text_input(
+    "Gemini API Key (Optional):", 
+    value=active_key if active_key else "",
+    type="password", 
+    placeholder="Enter API Key for live LLM"
+)
+
+if api_key_input:
+    os.environ["GEMINI_API_KEY"] = api_key_input
+    st.sidebar.success("🔑 Gemini API Key Active")
+elif secret_key:
+    st.sidebar.success("🔑 Cloud Secrets Key Active")
+
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚙️ System Telemetry")
